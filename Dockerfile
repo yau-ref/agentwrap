@@ -17,6 +17,7 @@ RUN apt-get update \
         less \
         openssh-client \
         tini \
+        zsh \
     && rm -rf /var/lib/apt/lists/*
 
 # Install the standalone Codex release into an immutable, system-wide location.
