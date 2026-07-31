@@ -14,8 +14,8 @@ container build --target claude -t agentwrap-claude:latest .
 Then run it from the project directory you want it to work in:
 
 ```sh
-/path/to/codex-virtualized/run.sh codex
-/path/to/codex-virtualized/run.sh claude
+/path/to/codex-virtualized/agentwrap.sh codex
+/path/to/codex-virtualized/agentwrap.sh claude
 ```
 
 The launcher removes the container when the agent exits and mounts:
@@ -28,11 +28,11 @@ The agent can access those mounted locations, but the rest of the host filesyste
 
 ## Shell alias
 
-To avoid typing the full path to `run.sh` every time, add an alias to your shell config, replacing `/path/to/agentwrap` with the actual path to this repo:
+To avoid typing the full path to `agentwrap.sh` every time, add an alias to your shell config, replacing `/path/to/agentwrap` with the actual path to this repo:
 
 ```sh
 # ~/.zshrc or ~/.bashrc
-alias aw="/path/to/agentwrap/run.sh"
+alias aw="/path/to/agentwrap/agentwrap.sh"
 ```
 
 Reload your shell config (`source ~/.zshrc`, or open a new terminal), then run:
