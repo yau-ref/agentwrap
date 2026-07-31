@@ -2,6 +2,16 @@
 
 agentwrap is a small setup for running [Codex](https://openai.com/codex/) or [Claude Code](https://claude.com/product/claude-code) in a Linux container on Apple silicon Macs using Apple's `container` CLI. It gives the agent an isolated environment while keeping the current project available as its workspace.
 
+## Prerequisites
+
+agentwrap relies on Apple's [`container`](https://github.com/apple/container) CLI, which requires Apple silicon and macOS 15 or later. Broad strokes:
+
+- Install the `container` tool (via the signed installer package or Homebrew).
+- Start the container system service with `container system start`.
+- Verify it's working with `container system status`.
+
+See Apple's official [installation instructions](https://github.com/apple/container/#get-started) for full setup and troubleshooting details.
+
 ## Usage
 
 Build the image for the agent you want (each build produces its own tag):
