@@ -30,6 +30,8 @@ alias aw="/path/to/agentwrap/agentwrap.sh"
 
 Reload your shell config (`source ~/.zshrc`, or open a new terminal) so the alias is available.
 
+The first time you run either agent you'll need to authenticate inside the container (`/login` for Claude, the Codex login flow for Codex) — this is separate from any login you've already done for the CLI on your host. It only needs to happen once; the credentials are persisted under `~/.agentwrap` on the host — see [Configuration and credentials](#configuration-and-credentials) below.
+
 ## Usage
 
 Run it from the project directory you want it to work in:
@@ -58,5 +60,3 @@ The agent can access those mounted locations, but the rest of the host filesyste
 These live under a dedicated `~/.agentwrap` directory rather than the CLIs' normal `~/.codex` / `~/.claude` locations, so the container has its own separate login/identity instead of sharing credentials with an agent you run directly on your host. This separate identity is shared across every container you run for a given agent, not just within a single run — `aw codex` always mounts the same `~/.agentwrap/codex`, and `aw claude` always mounts the same `~/.agentwrap/claude` / `~/.agentwrap/claude.json`, so containers share login/identity with each other instead of each getting its own. If the container is ever compromised, the blast radius is limited to this throwaway identity, which you can revoke independently of your host session.
 
 They're still mounted directly from the host, not copied, so history and settings persist across runs of the container. Any changes the agent makes inside the container to these files (config edits, credential refreshes, etc.) are written straight back to `~/.agentwrap` on the host, and vice versa — treat the container's access to these files as equivalent to running the agent directly on your host with this identity.
-
-The first time you run either agent you'll need to authenticate inside the container (`/login` for Claude, the Codex login flow for Codex) — this is separate from any login you've already done for the CLI on your host. It only needs to happen once; the credentials are persisted under `~/.agentwrap` on the host via the mounts above.
