@@ -1,14 +1,11 @@
 # syntax=docker/dockerfile:1.7
 
-FROM ubuntu:24.04 AS base
+FROM alpine:3.20 AS base
 
 ARG USER_ID=1000
 ARG GROUP_ID=1000
 
-ENV DEBIAN_FRONTEND=noninteractive
-
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends \
+RUN apk add --no-cache \
         bash \
         bubblewrap \
         ca-certificates \
@@ -16,9 +13,10 @@ RUN apt-get update \
         git \
         less \
         openssh-client \
+        ripgrep \
+        shadow \
         tini \
-        zsh \
-    && rm -rf /var/lib/apt/lists/*
+        zsh
 
 RUN existing_group="$(getent group "${GROUP_ID}" | cut -d: -f1)" \
     && if [ -n "${existing_group}" ]; then \
@@ -44,12 +42,11 @@ RUN existing_group="$(getent group "${GROUP_ID}" | cut -d: -f1)" \
     && mkdir -p /home/agent /workspace \
     && chown agent:agent /home/agent /workspace
 
-ENV DEBIAN_FRONTEND=
 ENV HOME=/home/agent
 ENV DISABLE_AUTOUPDATER=1
 
 WORKDIR /workspace
-ENTRYPOINT ["/usr/bin/tini", "--"]
+ENTRYPOINT ["tini", "--"]
 
 # -----------------------------------------------------------------------------
 FROM base AS codex
