@@ -44,7 +44,7 @@ aw claude
 aw codex "Review the authentication flow for security issues"
 ```
 
-The launcher removes the container when the agent exits and mounts the current directory at `/workspace`, plus each agent's config/auth directories — see [Configuration and credentials](#configuration-and-credentials) below.
+The launcher mounts the current directory at `/workspace`, plus each agent's config/auth directories — see [Configuration and credentials](#configuration-and-credentials) below. It removes the container when the agent exits.
 
 The optional second argument is run non-interactively: the agent executes the
 prompt, prints its output, and exits (`claude -p` / `codex exec`).
