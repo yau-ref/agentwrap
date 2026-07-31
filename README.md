@@ -1,14 +1,14 @@
-# Codex Virtualized
+# agentwrap
 
-Codex Virtualized is a small setup for running [Codex](https://openai.com/codex/) or [Claude Code](https://claude.com/product/claude-code) in a Linux container on Apple silicon Macs using Apple's `container` CLI. It gives the agent an isolated environment while keeping the current project available as its workspace.
+agentwrap is a small setup for running [Codex](https://openai.com/codex/) or [Claude Code](https://claude.com/product/claude-code) in a Linux container on Apple silicon Macs using Apple's `container` CLI. It gives the agent an isolated environment while keeping the current project available as its workspace.
 
 ## Usage
 
 Build the image for the agent you want (each build produces its own tag):
 
 ```sh
-container build --build-arg AGENT=codex -t virtcodex:latest .
-container build --build-arg AGENT=claude -t virtclaude:latest .
+container build --build-arg AGENT=codex -t agentwrap-codex:latest .
+container build --build-arg AGENT=claude -t agentwrap-claude:latest .
 ```
 
 Then run it from the project directory you want it to work in:

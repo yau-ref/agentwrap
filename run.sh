@@ -9,11 +9,11 @@ AGENT="$1"
 
 case "$AGENT" in
     codex)
-        IMAGE="virtcodex:latest"
+        IMAGE="agentwrap-codex:latest"
         VOLUMES=(--volume "$HOME/.codex:/home/agent/.codex")
         ;;
     claude)
-        IMAGE="virtclaude:latest"
+        IMAGE="agentwrap-claude:latest"
         mkdir -p "$HOME/.claude"
         [ -f "$HOME/.claude.json" ] || : > "$HOME/.claude.json"
         VOLUMES=(
