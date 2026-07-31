@@ -53,8 +53,10 @@ FROM base AS codex
 
 ARG CODEX_VERSION=latest
 
-RUN mkdir -p /opt/codex \
-    && chown agent:agent /opt/codex /usr/local/bin
+RUN mkdir -p /opt/codex/bin \
+    && chown agent:agent /opt/codex /opt/codex/bin
+
+ENV PATH=/opt/codex/bin:$PATH
 
 USER agent
 
@@ -62,7 +64,7 @@ RUN curl --fail --silent --show-error --location \
         https://chatgpt.com/codex/install.sh \
         --output /tmp/install-codex.sh \
     && CODEX_HOME=/opt/codex \
-       CODEX_INSTALL_DIR=/usr/local/bin \
+       CODEX_INSTALL_DIR=/opt/codex/bin \
        CODEX_NON_INTERACTIVE=true \
        CODEX_RELEASE="${CODEX_VERSION}" \
            sh /tmp/install-codex.sh \
@@ -79,7 +81,9 @@ FROM base AS claude
 ARG CLAUDE_VERSION=latest
 
 RUN mkdir -p /opt/claude \
-    && chown agent:agent /opt/claude /usr/local/bin
+    && chown agent:agent /opt/claude
+
+ENV PATH=/opt/claude/.local/bin:$PATH
 
 USER agent
 
@@ -88,8 +92,6 @@ RUN curl --fail --silent --show-error --location \
         --output /tmp/install-claude.sh \
     && HOME=/opt/claude bash /tmp/install-claude.sh "${CLAUDE_VERSION}" \
     && rm /tmp/install-claude.sh \
-    && resolved="$(readlink -f /opt/claude/.local/bin/claude)" \
-    && ln -s "${resolved}" /usr/local/bin/claude \
     && rm -rf /opt/claude/.claude/downloads \
     && claude --version
 
