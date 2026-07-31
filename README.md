@@ -26,6 +26,8 @@ The launcher removes the container when the agent exits and mounts:
 
 The agent can access those mounted locations, but the rest of the host filesystem is not exposed to the container by this project.
 
+For Claude, the first time you run the container you may need to run `/login` inside it to authenticate. This only needs to happen once — the credentials are persisted to `~/.claude` / `~/.claude.json` on the host via the mounts above, and logging in inside the container does not log you out of Claude on macOS.
+
 ## Shell alias
 
 To avoid typing the full path to `agentwrap.sh` every time, add an alias to your shell config, replacing `/path/to/agentwrap` with the actual path to this repo:
