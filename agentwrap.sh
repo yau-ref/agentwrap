@@ -28,8 +28,16 @@ case "$AGENT" in
         ;;
 esac
 
+if [ "$#" -eq 2 ]; then
+    # No stdin attached: an open, never-closing stdin makes `codex exec`
+    # hang on "Reading additional input from stdin...".
+    TTY_FLAG=()
+else
+    TTY_FLAG=(-it)
+fi
+
 CONTAINER_ARGS=(
-    run --rm -it
+    run --rm "${TTY_FLAG[@]+"${TTY_FLAG[@]}"}"
     --volume "$PWD:/workspace"
     "${VOLUMES[@]}"
     --workdir /workspace
@@ -37,7 +45,14 @@ CONTAINER_ARGS=(
 )
 
 if [ "$#" -eq 2 ]; then
-    CONTAINER_ARGS+=("$AGENT" "$PROMPT")
+    case "$AGENT" in
+        codex)
+            CONTAINER_ARGS+=(codex exec "$PROMPT")
+            ;;
+        claude)
+            CONTAINER_ARGS+=(claude -p "$PROMPT")
+            ;;
+    esac
 fi
 
 container "${CONTAINER_ARGS[@]}"

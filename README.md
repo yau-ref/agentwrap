@@ -43,5 +43,5 @@ aw claude
 aw codex "Review the authentication flow for security issues"
 ```
 
-The optional second argument is passed to the selected agent as its initial
-prompt.
+The optional second argument is run non-interactively: the agent executes the
+prompt, prints its output, and exits (`claude -p` / `codex exec`).
