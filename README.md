@@ -25,3 +25,19 @@ The launcher removes the container when the agent exits and mounts:
 - for Claude: `~/.claude` at `/home/agent/.claude` and `~/.claude.json` at `/home/agent/.claude.json` for configuration and authentication
 
 The agent can access those mounted locations, but the rest of the host filesystem is not exposed to the container by this project.
+
+## Shell alias
+
+To avoid typing the full path to `run.sh` every time, add an alias to your shell config, replacing `/path/to/agentwrap` with the actual path to this repo:
+
+```sh
+# ~/.zshrc or ~/.bashrc
+alias aw="/path/to/agentwrap/run.sh"
+```
+
+Reload your shell config (`source ~/.zshrc`, or open a new terminal), then run:
+
+```sh
+aw codex
+aw claude
+```
