@@ -28,21 +28,7 @@ Then run it from the project directory you want it to work in:
 /path/to/codex-virtualized/agentwrap.sh claude
 ```
 
-The launcher removes the container when the agent exits and mounts:
-
-- the current directory at `/workspace`
-- for Codex: `~/.codex` at `/home/agent/.codex` for configuration and authentication
-- for Claude: `~/.claude` at `/home/agent/.claude` and `~/.claude.json` at `/home/agent/.claude.json` for configuration and authentication
-
-The agent can access those mounted locations, but the rest of the host filesystem is not exposed to the container by this project.
-
-These are mounted directly from the host, not copied, so that history and settings persist across runs and you can switch smoothly between running the agent raw on your host and running it inside agentwrap.
-
-**Warning:** as a consequence, at least for now, any changes the agent makes inside the container to `~/.codex`, `~/.claude`, or `~/.claude.json` (config edits, credential refreshes, etc.) are written straight back to the host, and vice versa. Treat the container's access to these files as equivalent to running the agent directly on your host.
-
-For Claude, the first time you run the container you may need to run `/login` inside it to authenticate. This only needs to happen once — the credentials are persisted to `~/.claude` / `~/.claude.json` on the host via the mounts above, and logging in inside the container does not log you out of Claude on macOS.
-
-## Shell alias
+The launcher removes the container when the agent exits and mounts the current directory at `/workspace`, plus each agent's config/auth directories — see [Configuration and credentials](#configuration-and-credentials) below.
 
 To avoid typing the full path to `agentwrap.sh` every time, add an alias to your shell config, replacing `/path/to/agentwrap` with the actual path to this repo:
 
@@ -61,3 +47,19 @@ aw codex "Review the authentication flow for security issues"
 
 The optional second argument is run non-interactively: the agent executes the
 prompt, prints its output, and exits (`claude -p` / `codex exec`).
+
+## Configuration and credentials
+
+The launcher mounts:
+
+- the current directory at `/workspace`
+- for Codex: `~/.codex` at `/home/agent/.codex` for configuration and authentication
+- for Claude: `~/.claude` at `/home/agent/.claude` and `~/.claude.json` at `/home/agent/.claude.json` for configuration and authentication
+
+The agent can access those mounted locations, but the rest of the host filesystem is not exposed to the container by this project.
+
+These are mounted directly from the host, not copied, so that history and settings persist across runs and you can switch smoothly between running the agent raw on your host and running it inside agentwrap.
+
+**Warning:** as a consequence, at least for now, any changes the agent makes inside the container to `~/.codex`, `~/.claude`, or `~/.claude.json` (config edits, credential refreshes, etc.) are written straight back to the host, and vice versa. Treat the container's access to these files as equivalent to running the agent directly on your host.
+
+For Claude, the first time you run the container you may need to run `/login` inside it to authenticate. This only needs to happen once — the credentials are persisted to `~/.claude` / `~/.claude.json` on the host via the mounts above, and logging in inside the container does not log you out of Claude on macOS.
