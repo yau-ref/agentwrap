@@ -53,13 +53,15 @@ prompt, prints its output, and exits (`claude -p` / `codex exec`).
 The launcher mounts:
 
 - the current directory at `/workspace`
-- for Codex: `~/.codex` at `/home/agent/.codex` for configuration and authentication
-- for Claude: `~/.claude` at `/home/agent/.claude` and `~/.claude.json` at `/home/agent/.claude.json` for configuration and authentication
+- for Codex: `~/.agentwrap/codex` at `/home/agent/.codex` for configuration and authentication
+- for Claude: `~/.agentwrap/claude` at `/home/agent/.claude` and `~/.agentwrap/claude.json` at `/home/agent/.claude.json` for configuration and authentication
 
 The agent can access those mounted locations, but the rest of the host filesystem is not exposed to the container by this project.
 
-These are mounted directly from the host, not copied, so that history and settings persist across runs and you can switch smoothly between running the agent raw on your host and running it inside agentwrap.
+These live under a dedicated `~/.agentwrap` directory rather than the CLIs' normal `~/.codex` / `~/.claude` locations, so the container has its own separate login/identity instead of sharing credentials with an agent you run directly on your host. If the container is ever compromised, the blast radius is limited to this throwaway identity, which you can revoke independently of your host session.
 
-**Warning:** as a consequence, at least for now, any changes the agent makes inside the container to `~/.codex`, `~/.claude`, or `~/.claude.json` (config edits, credential refreshes, etc.) are written straight back to the host, and vice versa. Treat the container's access to these files as equivalent to running the agent directly on your host.
+They're still mounted directly from the host, not copied, so history and settings persist across runs of the container. Any changes the agent makes inside the container to these files (config edits, credential refreshes, etc.) are written straight back to `~/.agentwrap` on the host, and vice versa — treat the container's access to these files as equivalent to running the agent directly on your host with this identity.
 
-For Claude, the first time you run the container you may need to run `/login` inside it to authenticate. This only needs to happen once — the credentials are persisted to `~/.claude` / `~/.claude.json` on the host via the mounts above, and logging in inside the container does not log you out of Claude on macOS.
+The first time you run either agent you'll need to authenticate inside the container (`/login` for Claude, the Codex login flow for Codex) — this is separate from any login you've already done for the CLI on your host. It only needs to happen once; the credentials are persisted under `~/.agentwrap` on the host via the mounts above.
+
+Note that this separation is only from the host — it does not separate different containers from each other. Every `aw codex` invocation shares the same `~/.agentwrap/codex`, and every `aw claude` invocation shares the same `~/.agentwrap/claude` / `~/.agentwrap/claude.json`, so config changes, history, and credentials are visible across all containers you run for a given agent (concurrently or over time), not just within a single run.

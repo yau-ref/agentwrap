@@ -11,15 +11,16 @@ PROMPT="${2:-}"
 case "$AGENT" in
     codex)
         IMAGE="agentwrap-codex:latest"
-        VOLUMES=(--volume "$HOME/.codex:/home/agent/.codex")
+        mkdir -p "$HOME/.agentwrap/codex"
+        VOLUMES=(--volume "$HOME/.agentwrap/codex:/home/agent/.codex")
         ;;
     claude)
         IMAGE="agentwrap-claude:latest"
-        mkdir -p "$HOME/.claude"
-        [ -f "$HOME/.claude.json" ] || : > "$HOME/.claude.json"
+        mkdir -p "$HOME/.agentwrap/claude"
+        [ -f "$HOME/.agentwrap/claude.json" ] || : > "$HOME/.agentwrap/claude.json"
         VOLUMES=(
-            --volume "$HOME/.claude:/home/agent/.claude"
-            --volume "$HOME/.claude.json:/home/agent/.claude.json"
+            --volume "$HOME/.agentwrap/claude:/home/agent/.claude"
+            --volume "$HOME/.agentwrap/claude.json:/home/agent/.claude.json"
         )
         ;;
     *)
