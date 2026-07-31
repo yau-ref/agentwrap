@@ -40,4 +40,8 @@ Reload your shell config (`source ~/.zshrc`, or open a new terminal), then run:
 ```sh
 aw codex
 aw claude
+aw codex "Review the authentication flow for security issues"
 ```
+
+The optional second argument is passed to the selected agent as its initial
+prompt.
