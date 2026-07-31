@@ -56,6 +56,11 @@ FROM base AS codex
 
 ARG CODEX_VERSION=latest
 
+RUN mkdir -p /opt/codex \
+    && chown agent:agent /opt/codex /usr/local/bin
+
+USER agent
+
 RUN curl --fail --silent --show-error --location \
         https://chatgpt.com/codex/install.sh \
         --output /tmp/install-codex.sh \
@@ -69,13 +74,17 @@ RUN curl --fail --silent --show-error --location \
 
 ENV CODEX_HOME=/home/agent/.codex
 
-USER agent
 CMD ["codex"]
 
 # -----------------------------------------------------------------------------
 FROM base AS claude
 
 ARG CLAUDE_VERSION=latest
+
+RUN mkdir -p /opt/claude \
+    && chown agent:agent /opt/claude /usr/local/bin
+
+USER agent
 
 RUN curl --fail --silent --show-error --location \
         https://claude.ai/install.sh \
@@ -87,5 +96,4 @@ RUN curl --fail --silent --show-error --location \
     && rm -rf /opt/claude/.claude/downloads \
     && claude --version
 
-USER agent
 CMD ["claude"]
