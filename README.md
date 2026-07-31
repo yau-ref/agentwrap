@@ -7,8 +7,8 @@ agentwrap is a small setup for running [Codex](https://openai.com/codex/) or [Cl
 Build the image for the agent you want (each build produces its own tag):
 
 ```sh
-container build --build-arg AGENT=codex -t agentwrap-codex:latest .
-container build --build-arg AGENT=claude -t agentwrap-claude:latest .
+container build --target codex -t agentwrap-codex:latest .
+container build --target claude -t agentwrap-claude:latest .
 ```
 
 Then run it from the project directory you want it to work in:
