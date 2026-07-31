@@ -14,11 +14,11 @@ RUN apk add --no-cache \
         less \
         openssh-client \
         ripgrep \
-        shadow \
         tini \
         zsh
 
-RUN existing_group="$(getent group "${GROUP_ID}" | cut -d: -f1)" \
+RUN apk add --no-cache shadow \
+    && existing_group="$(getent group "${GROUP_ID}" | cut -d: -f1)" \
     && if [ -n "${existing_group}" ]; then \
         groupmod --new-name agent "${existing_group}"; \
     else \
@@ -40,7 +40,8 @@ RUN existing_group="$(getent group "${GROUP_ID}" | cut -d: -f1)" \
             agent; \
     fi \
     && mkdir -p /home/agent /workspace \
-    && chown agent:agent /home/agent /workspace
+    && chown agent:agent /home/agent /workspace \
+    && apk del shadow
 
 ENV HOME=/home/agent
 ENV DISABLE_AUTOUPDATER=1
