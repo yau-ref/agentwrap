@@ -7,7 +7,6 @@ ARG GROUP_ID=1000
 
 RUN apk add --no-cache \
         bash \
-        bubblewrap \
         ca-certificates \
         curl \
         git \
