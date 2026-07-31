@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1.7
 
-FROM ubuntu:latest AS base
+FROM ubuntu:24.04 AS base
 
 ARG USER_ID=1000
 ARG GROUP_ID=1000
