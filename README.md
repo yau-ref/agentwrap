@@ -12,7 +12,7 @@ agentwrap relies on Apple's [`container`](https://github.com/apple/container) CL
 
 See Apple's official [installation instructions](https://github.com/apple/container/#get-started) for full setup and troubleshooting details.
 
-## Usage
+## Set up
 
 Build the image for the agent you want (each build produces its own tag):
 
@@ -21,15 +21,6 @@ container build --target codex -t agentwrap-codex:latest .
 container build --target claude -t agentwrap-claude:latest .
 ```
 
-Then run it from the project directory you want it to work in:
-
-```sh
-/path/to/codex-virtualized/agentwrap.sh codex
-/path/to/codex-virtualized/agentwrap.sh claude
-```
-
-The launcher removes the container when the agent exits and mounts the current directory at `/workspace`, plus each agent's config/auth directories — see [Configuration and credentials](#configuration-and-credentials) below.
-
 To avoid typing the full path to `agentwrap.sh` every time, add an alias to your shell config, replacing `/path/to/agentwrap` with the actual path to this repo:
 
 ```sh
@@ -37,13 +28,19 @@ To avoid typing the full path to `agentwrap.sh` every time, add an alias to your
 alias aw="/path/to/agentwrap/agentwrap.sh"
 ```
 
-Reload your shell config (`source ~/.zshrc`, or open a new terminal), then run:
+Reload your shell config (`source ~/.zshrc`, or open a new terminal) so the alias is available.
+
+## Usage
+
+Run it from the project directory you want it to work in:
 
 ```sh
 aw codex
 aw claude
 aw codex "Review the authentication flow for security issues"
 ```
+
+The launcher removes the container when the agent exits and mounts the current directory at `/workspace`, plus each agent's config/auth directories — see [Configuration and credentials](#configuration-and-credentials) below.
 
 The optional second argument is run non-interactively: the agent executes the
 prompt, prints its output, and exits (`claude -p` / `codex exec`).
