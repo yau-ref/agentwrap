@@ -45,13 +45,24 @@ CONTAINER_ARGS=(
     "$IMAGE"
 )
 
+# The container is already the sandbox boundary, so let the agent skip its
+# own approval prompts instead of asking twice.
 if [ "$#" -eq 2 ]; then
     case "$AGENT" in
         codex)
-            CONTAINER_ARGS+=(codex exec "$PROMPT")
+            CONTAINER_ARGS+=(codex exec --dangerously-bypass-approvals-and-sandbox "$PROMPT")
             ;;
         claude)
-            CONTAINER_ARGS+=(claude -p "$PROMPT")
+            CONTAINER_ARGS+=(claude --dangerously-skip-permissions -p "$PROMPT")
+            ;;
+    esac
+else
+    case "$AGENT" in
+        codex)
+            CONTAINER_ARGS+=(codex --dangerously-bypass-approvals-and-sandbox)
+            ;;
+        claude)
+            CONTAINER_ARGS+=(claude --dangerously-skip-permissions)
             ;;
     esac
 fi
