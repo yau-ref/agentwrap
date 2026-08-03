@@ -1,7 +1,7 @@
 # agentwrap
 
 agentwrap is a small setup for running [Codex](https://openai.com/codex/) or [Claude Code](https://claude.com/product/claude-code) in a Linux container on Apple silicon Macs using Apple's `container` CLI. It gives the agent an isolated environment while keeping the current project available as its workspace. 
-Ideal for those who wants to run agents in yolo mode but ~is also a pussy~ in a safe manner 
+Ideal for those who want to run agents in yolo mode but ~is also a pussy~ in a safe manner 
 
 > **Disclaimer:** This project is provided as-is, with no warranty of any kind. Use it at your own risk — you're responsible for reviewing the setup and for anything that happens as a result of running it.
 
