@@ -78,7 +78,7 @@ if [ -f "$OVERLAY_DOCKERFILE" ]; then
     HASH="$(shasum -a 256 "$OVERLAY_DOCKERFILE" | cut -c1-12)"
     BASE_IMAGE="$IMAGE"
     OVERLAY_TAG="agentwrap-${AGENT}:overlay-${HASH}"
-    if container images inspect "$OVERLAY_TAG" >/dev/null 2>&1; then
+    if container image inspect "$OVERLAY_TAG" >/dev/null 2>&1; then
         IMAGE="$OVERLAY_TAG"
     elif [ -t 0 ]; then
         BUILD_NOW="n"
