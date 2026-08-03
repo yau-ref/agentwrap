@@ -1,10 +1,50 @@
 #! /usr/bin/env bash
 set -euo pipefail
 
-if [ "$#" -lt 1 ] || [ "$#" -gt 2 ]; then
+usage() {
     echo "Usage: $(basename "$0") [codex|claude] [prompt]" >&2
+    echo "       $(basename "$0") build [codex|claude]" >&2
     exit 1
+}
+
+if [ "$#" -lt 1 ] || [ "$#" -gt 2 ]; then
+    usage
 fi
+
+if [ "$1" = "build" ]; then
+    if [ "$#" -ne 2 ]; then
+        usage
+    fi
+    AGENT="$2"
+    case "$AGENT" in
+        codex|claude)
+            ;;
+        *)
+            usage
+            ;;
+    esac
+
+    OVERLAY_DOCKERFILE=".agentwrap/Dockerfile"
+    if [ ! -f "$OVERLAY_DOCKERFILE" ]; then
+        echo "No ${OVERLAY_DOCKERFILE} found in $(pwd)." >&2
+        exit 1
+    fi
+
+    HASH="$(shasum -a 256 "$OVERLAY_DOCKERFILE" | cut -c1-12)"
+    BASE_IMAGE="agentwrap-${AGENT}:latest"
+    OVERLAY_TAG="agentwrap-${AGENT}:overlay-${HASH}"
+
+    echo "==> Building ${OVERLAY_TAG} from ${OVERLAY_DOCKERFILE} (base: ${BASE_IMAGE})"
+    container build \
+        --build-arg "BASE_IMAGE=${BASE_IMAGE}" \
+        -f "$OVERLAY_DOCKERFILE" \
+        -t "$OVERLAY_TAG" \
+        .
+
+    echo "$OVERLAY_TAG"
+    exit 0
+fi
+
 AGENT="$1"
 PROMPT="${2:-}"
 
@@ -24,8 +64,7 @@ case "$AGENT" in
         )
         ;;
     *)
-        echo "Usage: $(basename "$0") [codex|claude] [prompt]" >&2
-        exit 1
+        usage
         ;;
 esac
 
@@ -37,7 +76,7 @@ if [ -f "$OVERLAY_DOCKERFILE" ]; then
         IMAGE="$OVERLAY_TAG"
     else
         echo "Note: ${OVERLAY_DOCKERFILE} found but ${OVERLAY_TAG} hasn't been built." >&2
-        echo "Run: agentwrap-build.sh ${AGENT}   (from this directory) to build it." >&2
+        echo "Run: $(basename "$0") build ${AGENT}   (from this directory) to build it." >&2
         echo "Continuing with the base image (${IMAGE})." >&2
     fi
 fi
