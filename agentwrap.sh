@@ -29,6 +29,19 @@ case "$AGENT" in
         ;;
 esac
 
+OVERLAY_DOCKERFILE=".agentwrap/Dockerfile"
+if [ -f "$OVERLAY_DOCKERFILE" ]; then
+    HASH="$(shasum -a 256 "$OVERLAY_DOCKERFILE" | cut -c1-12)"
+    OVERLAY_TAG="agentwrap-${AGENT}:overlay-${HASH}"
+    if container images inspect "$OVERLAY_TAG" >/dev/null 2>&1; then
+        IMAGE="$OVERLAY_TAG"
+    else
+        echo "Note: ${OVERLAY_DOCKERFILE} found but ${OVERLAY_TAG} hasn't been built." >&2
+        echo "Run: agentwrap-build.sh ${AGENT}   (from this directory) to build it." >&2
+        echo "Continuing with the base image (${IMAGE})." >&2
+    fi
+fi
+
 if [ "$#" -eq 2 ]; then
     # No stdin attached: an open, never-closing stdin makes `codex exec`
     # hang on "Reading additional input from stdin...".
