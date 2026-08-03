@@ -17,12 +17,7 @@ See Apple's official [installation instructions](https://github.com/apple/contai
 
 ## Set up
 
-Build the image for the agent you want (each build produces its own tag):
-
-```sh
-container build --target codex -t agentwrap-codex:latest .
-container build --target claude -t agentwrap-claude:latest .
-```
+`agentwrap.sh` is the entry point you'll run agents through.
 
 To avoid typing the full path to `agentwrap.sh` every time, add an alias to your shell config, replacing `/path/to/agentwrap` with the actual path to this repo:
 
@@ -32,6 +27,8 @@ alias aw="/path/to/agentwrap/agentwrap.sh"
 ```
 
 Reload your shell config (`source ~/.zshrc`, or open a new terminal) so the alias is available.
+
+The first time you run `aw codex` or `aw claude`, the base image for that agent won't be built yet — agentwrap.sh will notice and ask if you want to build it now.
 
 The first time you run either agent you'll need to authenticate inside the container (`/login` for Claude, the Codex login flow for Codex) — this is separate from any login you've already done for the CLI on your host. It only needs to happen once; the credentials are persisted under `~/.agentwrap` on the host — see [Configuration and credentials](#configuration-and-credentials) below.
 
