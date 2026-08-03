@@ -1,6 +1,7 @@
 # agentwrap
 
-agentwrap is a small setup for running [Codex](https://openai.com/codex/) or [Claude Code](https://claude.com/product/claude-code) in a Linux container on Apple silicon Macs using Apple's `container` CLI. It gives the agent an isolated environment while keeping the current project available as its workspace.
+agentwrap is a small setup for running [Codex](https://openai.com/codex/) or [Claude Code](https://claude.com/product/claude-code) in a Linux container on Apple silicon Macs using Apple's `container` CLI. It gives the agent an isolated environment while keeping the current project available as its workspace. 
+Ideal for those who wants to run agents in yolo mode but ~is also a pussy~ in a safe manner 
 
 > **Disclaimer:** This project is provided as-is, with no warranty of any kind. Use it at your own risk — you're responsible for reviewing the setup and for anything that happens as a result of running it.
 
@@ -59,9 +60,9 @@ FROM ${BASE_IMAGE}
 ...
 ```
 
-Just put an overlay Dockerfile to .agentwrap/Dockerfile and run `aw claude` or `aw codex` as usual — it will detect the overlay and prompt you to build it before launching.
+And run `aw claude` or `aw codex` as usual — it will detect the overlay and prompt you to build it before launching.
 
-See [`examples/`](examples/) for ready-made fragments (e.g. [`examples/rust/Dockerfile`](examples/rust/Dockerfile), [`examples/scala/Dockerfile`](examples/scala/Dockerfile), [`examples/python3/Dockerfile`](examples/python3/Dockerfile)) — copy one into your project's `.agentwrap/Dockerfile` as a starting point.
+See [`examples/`](examples/) for ready-made fragments — copy one into your project's `.agentwrap/Dockerfile` as a starting point.
 
 ## Configuration and credentials
 
