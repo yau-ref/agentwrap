@@ -1,10 +1,55 @@
 #! /usr/bin/env bash
 set -euo pipefail
 
-if [ "$#" -lt 1 ] || [ "$#" -gt 2 ]; then
+usage() {
     echo "Usage: $(basename "$0") [codex|claude] [prompt]" >&2
+    echo "       $(basename "$0") build [codex|claude]" >&2
     exit 1
+}
+
+build_overlay() {
+    local dockerfile="$1" base_image="$2" tag="$3"
+    echo "==> Building ${tag} from ${dockerfile} (base: ${base_image})"
+    container build \
+        --build-arg "BASE_IMAGE=${base_image}" \
+        -f "$dockerfile" \
+        -t "$tag" \
+        .
+}
+
+if [ "$#" -lt 1 ] || [ "$#" -gt 2 ]; then
+    usage
 fi
+
+if [ "$1" = "build" ]; then
+    if [ "$#" -ne 2 ]; then
+        usage
+    fi
+    AGENT="$2"
+    case "$AGENT" in
+        codex|claude)
+            ;;
+        *)
+            usage
+            ;;
+    esac
+
+    OVERLAY_DOCKERFILE=".agentwrap/Dockerfile"
+    if [ ! -f "$OVERLAY_DOCKERFILE" ]; then
+        echo "No ${OVERLAY_DOCKERFILE} found in $(pwd)." >&2
+        exit 1
+    fi
+
+    HASH="$(shasum -a 256 "$OVERLAY_DOCKERFILE" | cut -c1-12)"
+    BASE_IMAGE="agentwrap-${AGENT}:latest"
+    OVERLAY_TAG="agentwrap-${AGENT}:overlay-${HASH}"
+
+    build_overlay "$OVERLAY_DOCKERFILE" "$BASE_IMAGE" "$OVERLAY_TAG"
+
+    echo "$OVERLAY_TAG"
+    exit 0
+fi
+
 AGENT="$1"
 PROMPT="${2:-}"
 
@@ -24,10 +69,35 @@ case "$AGENT" in
         )
         ;;
     *)
-        echo "Usage: $(basename "$0") [codex|claude] [prompt]" >&2
-        exit 1
+        usage
         ;;
 esac
+
+OVERLAY_DOCKERFILE=".agentwrap/Dockerfile"
+if [ -f "$OVERLAY_DOCKERFILE" ]; then
+    HASH="$(shasum -a 256 "$OVERLAY_DOCKERFILE" | cut -c1-12)"
+    BASE_IMAGE="$IMAGE"
+    OVERLAY_TAG="agentwrap-${AGENT}:overlay-${HASH}"
+    if container image inspect "$OVERLAY_TAG" >/dev/null 2>&1; then
+        IMAGE="$OVERLAY_TAG"
+    elif [ -t 0 ]; then
+        BUILD_NOW="n"
+        read -r -p "An overlay Dockerfile for agentwrap was found (${OVERLAY_DOCKERFILE}) but the image (${OVERLAY_TAG}) hasn't been built yet. Build it now? [y/N] " BUILD_NOW || true
+        case "$BUILD_NOW" in
+            y|Y|yes|Yes)
+                build_overlay "$OVERLAY_DOCKERFILE" "$BASE_IMAGE" "$OVERLAY_TAG"
+                IMAGE="$OVERLAY_TAG"
+                ;;
+            *)
+                echo "Continuing with the base image (${IMAGE})." >&2
+                ;;
+        esac
+    else
+        echo "Note: an overlay Dockerfile for agentwrap was found (${OVERLAY_DOCKERFILE}) but the image (${OVERLAY_TAG}) hasn't been built yet." >&2
+        echo "Run: $(basename "$0") build ${AGENT}   (from this directory) to build it." >&2
+        echo "Continuing with the base image (${IMAGE})." >&2
+    fi
+fi
 
 if [ "$#" -eq 2 ]; then
     # No stdin attached: an open, never-closing stdin makes `codex exec`

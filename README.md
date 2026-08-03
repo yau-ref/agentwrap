@@ -49,6 +49,20 @@ The launcher mounts the current directory at `/workspace`, plus each agent's con
 The optional second argument is run non-interactively: the agent executes the
 prompt, prints its output, and exits (`claude -p` / `codex exec`).
 
+## Project dependencies
+
+The base image only ships generic CLI tools — no language runtimes or build toolchains. If a project needs those (Node, Python, Go, native libraries, etc.), add a `.agentwrap/Dockerfile` to the project that layers them on top of the agent image:
+
+```dockerfile
+ARG BASE_IMAGE
+FROM ${BASE_IMAGE}
+...
+```
+
+Just put an overlay Dockerfile to .agentwrap/Dockerfile and run `aw claude` or `aw codex` as usual — it will detect the overlay and prompt you to build it before launching.
+
+See [`examples/`](examples/) for ready-made fragments (e.g. [`examples/rust/Dockerfile`](examples/rust/Dockerfile), [`examples/scala/Dockerfile`](examples/scala/Dockerfile), [`examples/python3/Dockerfile`](examples/python3/Dockerfile)) — copy one into your project's `.agentwrap/Dockerfile` as a starting point.
+
 ## Configuration and credentials
 
 The launcher mounts:
