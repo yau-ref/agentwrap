@@ -17,6 +17,8 @@ See Apple's official [installation instructions](https://github.com/apple/contai
 
 ## Set up
 
+`agentwrap.sh` is the entry point you'll run agents through.
+
 To avoid typing the full path to `agentwrap.sh` every time, add an alias to your shell config, replacing `/path/to/agentwrap` with the actual path to this repo:
 
 ```sh
