@@ -73,6 +73,26 @@ case "$AGENT" in
         ;;
 esac
 
+if ! container image inspect "$IMAGE" >/dev/null 2>&1; then
+    if [ -t 0 ]; then
+        BUILD_NOW="n"
+        read -r -p "Base image ${IMAGE} is not ready. Build it now? [y/N] " BUILD_NOW || true
+        case "$BUILD_NOW" in
+            y|Y|yes|Yes)
+                "$(dirname "$0")/build.sh" "$AGENT"
+                ;;
+            *)
+                echo "Run: $(dirname "$0")/build.sh ${AGENT}   to build it, then try again." >&2
+                exit 1
+                ;;
+        esac
+    else
+        echo "Base image ${IMAGE} is not ready." >&2
+        echo "Run: $(dirname "$0")/build.sh ${AGENT}   to build it, then try again." >&2
+        exit 1
+    fi
+fi
+
 OVERLAY_DOCKERFILE=".agentwrap/Dockerfile"
 if [ -f "$OVERLAY_DOCKERFILE" ]; then
     HASH="$(shasum -a 256 "$OVERLAY_DOCKERFILE" | cut -c1-12)"
