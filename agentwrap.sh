@@ -17,9 +17,19 @@ build_overlay() {
         .
 }
 
+require_system_running() {
+    if ! container system status >/dev/null 2>&1; then
+        echo "The container system service isn't running." >&2
+        echo "Run: container system start   then try again." >&2
+        exit 1
+    fi
+}
+
 if [ "$#" -lt 1 ] || [ "$#" -gt 2 ]; then
     usage
 fi
+
+require_system_running
 
 if [ "$1" = "build" ]; then
     if [ "$#" -ne 2 ]; then
