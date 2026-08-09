@@ -2,7 +2,7 @@
 set -euo pipefail
 
 usage() {
-    echo "Usage: $(basename "$0") [codex|claude] [prompt]" >&2
+    echo "Usage: $(basename "$0") [codex|claude] [-r|--resume <session-id>] [prompt]" >&2
     echo "       $(basename "$0") build [codex|claude]" >&2
     exit 1
 }
@@ -25,6 +25,25 @@ require_system_running() {
     fi
 }
 
+RESUME_ID=""
+ARGS=()
+while [ "$#" -gt 0 ]; do
+    case "$1" in
+        -r|--resume)
+            if [ "$#" -lt 2 ]; then
+                usage
+            fi
+            RESUME_ID="$2"
+            shift 2
+            ;;
+        *)
+            ARGS+=("$1")
+            shift
+            ;;
+    esac
+done
+set -- "${ARGS[@]}"
+
 if [ "$#" -lt 1 ] || [ "$#" -gt 2 ]; then
     usage
 fi
@@ -32,6 +51,9 @@ fi
 require_system_running
 
 if [ "$1" = "build" ]; then
+    if [ -n "$RESUME_ID" ]; then
+        usage
+    fi
     if [ "$#" -ne 2 ]; then
         usage
     fi
@@ -150,19 +172,35 @@ CONTAINER_ARGS=(
 if [ "$#" -eq 2 ]; then
     case "$AGENT" in
         codex)
-            CONTAINER_ARGS+=(codex exec --dangerously-bypass-approvals-and-sandbox "$PROMPT")
+            if [ -n "$RESUME_ID" ]; then
+                CONTAINER_ARGS+=(codex exec resume --dangerously-bypass-approvals-and-sandbox "$RESUME_ID" "$PROMPT")
+            else
+                CONTAINER_ARGS+=(codex exec --dangerously-bypass-approvals-and-sandbox "$PROMPT")
+            fi
             ;;
         claude)
-            CONTAINER_ARGS+=(claude --dangerously-skip-permissions -p "$PROMPT")
+            if [ -n "$RESUME_ID" ]; then
+                CONTAINER_ARGS+=(claude --dangerously-skip-permissions --resume "$RESUME_ID" -p "$PROMPT")
+            else
+                CONTAINER_ARGS+=(claude --dangerously-skip-permissions -p "$PROMPT")
+            fi
             ;;
     esac
 else
     case "$AGENT" in
         codex)
-            CONTAINER_ARGS+=(codex --dangerously-bypass-approvals-and-sandbox)
+            if [ -n "$RESUME_ID" ]; then
+                CONTAINER_ARGS+=(codex resume --dangerously-bypass-approvals-and-sandbox "$RESUME_ID")
+            else
+                CONTAINER_ARGS+=(codex --dangerously-bypass-approvals-and-sandbox)
+            fi
             ;;
         claude)
-            CONTAINER_ARGS+=(claude --dangerously-skip-permissions)
+            if [ -n "$RESUME_ID" ]; then
+                CONTAINER_ARGS+=(claude --dangerously-skip-permissions --resume "$RESUME_ID")
+            else
+                CONTAINER_ARGS+=(claude --dangerously-skip-permissions)
+            fi
             ;;
     esac
 fi
