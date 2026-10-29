@@ -1,8 +1,11 @@
 #! /usr/bin/env bash
 set -euo pipefail
 
+DEFAULT_CPUS=1
+DEFAULT_MEMORY=512m
+
 usage() {
-    echo "Usage: $(basename "$0") [codex|claude] [-r|--resume <session-id>] [prompt]" >&2
+    echo "Usage: $(basename "$0") [codex|claude] [-r|--resume <session-id>] [-c|--cpu <n>] [-m|--mem <size>] [prompt]" >&2
     echo "       $(basename "$0") build [codex|claude]" >&2
     exit 1
 }
@@ -26,6 +29,8 @@ require_system_running() {
 }
 
 RESUME_ID=""
+CPUS=""
+MEMORY=""
 ARGS=()
 while [ "$#" -gt 0 ]; do
     case "$1" in
@@ -34,6 +39,20 @@ while [ "$#" -gt 0 ]; do
                 usage
             fi
             RESUME_ID="$2"
+            shift 2
+            ;;
+        -c|--cpu)
+            if [ "$#" -lt 2 ]; then
+                usage
+            fi
+            CPUS="$2"
+            shift 2
+            ;;
+        -m|--mem)
+            if [ "$#" -lt 2 ]; then
+                usage
+            fi
+            MEMORY="$2"
             shift 2
             ;;
         *)
@@ -51,7 +70,7 @@ fi
 require_system_running
 
 if [ "$1" = "build" ]; then
-    if [ -n "$RESUME_ID" ]; then
+    if [ -n "$RESUME_ID" ] || [ -n "$CPUS" ] || [ -n "$MEMORY" ]; then
         usage
     fi
     if [ "$#" -ne 2 ]; then
@@ -81,6 +100,9 @@ if [ "$1" = "build" ]; then
     echo "$OVERLAY_TAG"
     exit 0
 fi
+
+CPUS="${CPUS:-$DEFAULT_CPUS}"
+MEMORY="${MEMORY:-$DEFAULT_MEMORY}"
 
 AGENT="$1"
 PROMPT="${2:-}"
@@ -125,6 +147,7 @@ if ! container image inspect "$IMAGE" >/dev/null 2>&1; then
     fi
 fi
 
+OVERLAY_USED=""
 OVERLAY_DOCKERFILE=".agentwrap/Dockerfile"
 if [ -f "$OVERLAY_DOCKERFILE" ]; then
     HASH="$(shasum -a 256 "$OVERLAY_DOCKERFILE" | cut -c1-12)"
@@ -132,6 +155,7 @@ if [ -f "$OVERLAY_DOCKERFILE" ]; then
     OVERLAY_TAG="agentwrap-${AGENT}:overlay-${HASH}"
     if container image inspect "$OVERLAY_TAG" >/dev/null 2>&1; then
         IMAGE="$OVERLAY_TAG"
+        OVERLAY_USED="$OVERLAY_TAG"
     elif [ -t 0 ]; then
         BUILD_NOW="n"
         read -r -p "An overlay Dockerfile for agentwrap was found (${OVERLAY_DOCKERFILE}) but the image (${OVERLAY_TAG}) hasn't been built yet. Build it now? [y/N] " BUILD_NOW || true
@@ -139,6 +163,7 @@ if [ -f "$OVERLAY_DOCKERFILE" ]; then
             y|Y|yes|Yes)
                 build_overlay "$OVERLAY_DOCKERFILE" "$BASE_IMAGE" "$OVERLAY_TAG"
                 IMAGE="$OVERLAY_TAG"
+                OVERLAY_USED="$OVERLAY_TAG"
                 ;;
             *)
                 echo "Continuing with the base image (${IMAGE})." >&2
@@ -161,6 +186,8 @@ fi
 
 CONTAINER_ARGS=(
     run --rm "${TTY_FLAG[@]+"${TTY_FLAG[@]}"}"
+    --cpus "$CPUS"
+    --memory "$MEMORY"
     --volume "$PWD:/workspace"
     "${VOLUMES[@]}"
     --workdir /workspace
@@ -205,4 +232,8 @@ else
     esac
 fi
 
+if [ -n "$OVERLAY_USED" ]; then
+    echo "==> Using overlay image ${OVERLAY_USED}"
+fi
+echo "==> Starting wrapped ${AGENT} with ${CPUS} cpu and ${MEMORY} mem"
 container "${CONTAINER_ARGS[@]}"
