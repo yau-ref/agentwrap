@@ -229,4 +229,5 @@ else
     esac
 fi
 
+echo "==> Starting wrapped ${AGENT} with ${CPUS} cpu and ${MEMORY} mem"
 container "${CONTAINER_ARGS[@]}"
