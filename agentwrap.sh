@@ -1,6 +1,9 @@
 #! /usr/bin/env bash
 set -euo pipefail
 
+DEFAULT_CPUS=1
+DEFAULT_MEMORY=512m
+
 usage() {
     echo "Usage: $(basename "$0") [codex|claude] [-r|--resume <session-id>] [-c|--cpus <n>] [-m|--memory <size>] [prompt]" >&2
     echo "       $(basename "$0") build [codex|claude]" >&2
@@ -98,8 +101,8 @@ if [ "$1" = "build" ]; then
     exit 0
 fi
 
-CPUS="${CPUS:-1}"
-MEMORY="${MEMORY:-512m}"
+CPUS="${CPUS:-$DEFAULT_CPUS}"
+MEMORY="${MEMORY:-$DEFAULT_MEMORY}"
 
 AGENT="$1"
 PROMPT="${2:-}"
