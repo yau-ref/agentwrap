@@ -2,7 +2,7 @@
 set -euo pipefail
 
 usage() {
-    echo "Usage: $(basename "$0") [codex|claude] [-r|--resume <session-id>] [prompt]" >&2
+    echo "Usage: $(basename "$0") [codex|claude] [-r|--resume <session-id>] [-c|--cpus <n>] [-m|--memory <size>] [prompt]" >&2
     echo "       $(basename "$0") build [codex|claude]" >&2
     exit 1
 }
@@ -26,6 +26,8 @@ require_system_running() {
 }
 
 RESUME_ID=""
+CPUS=""
+MEMORY=""
 ARGS=()
 while [ "$#" -gt 0 ]; do
     case "$1" in
@@ -34,6 +36,20 @@ while [ "$#" -gt 0 ]; do
                 usage
             fi
             RESUME_ID="$2"
+            shift 2
+            ;;
+        -c|--cpus)
+            if [ "$#" -lt 2 ]; then
+                usage
+            fi
+            CPUS="$2"
+            shift 2
+            ;;
+        -m|--memory)
+            if [ "$#" -lt 2 ]; then
+                usage
+            fi
+            MEMORY="$2"
             shift 2
             ;;
         *)
@@ -51,7 +67,7 @@ fi
 require_system_running
 
 if [ "$1" = "build" ]; then
-    if [ -n "$RESUME_ID" ]; then
+    if [ -n "$RESUME_ID" ] || [ -n "$CPUS" ] || [ -n "$MEMORY" ]; then
         usage
     fi
     if [ "$#" -ne 2 ]; then
@@ -81,6 +97,9 @@ if [ "$1" = "build" ]; then
     echo "$OVERLAY_TAG"
     exit 0
 fi
+
+CPUS="${CPUS:-1}"
+MEMORY="${MEMORY:-512m}"
 
 AGENT="$1"
 PROMPT="${2:-}"
@@ -161,6 +180,8 @@ fi
 
 CONTAINER_ARGS=(
     run --rm "${TTY_FLAG[@]+"${TTY_FLAG[@]}"}"
+    --cpus "$CPUS"
+    --memory "$MEMORY"
     --volume "$PWD:/workspace"
     "${VOLUMES[@]}"
     --workdir /workspace
