@@ -39,7 +39,7 @@ aw claude
 aw codex "Review the authentication flow for security issues"
 aw claude --resume <session-id>
 aw claude --resume <session-id> "Now add tests for that"
-aw claude --cpus 2 --memory 1g
+aw claude --cpu 2 --mem 1g
 ```
 
 The launcher mounts the current directory at `/workspace`, plus each agent's config/auth directories — see [Configuration and credentials](#configuration-and-credentials) below. It removes the container when the agent exits.
@@ -51,7 +51,7 @@ Pass `-r`/`--resume <session-id>` to resume a previous session — it can appear
 
 Note: for Codex, interactively resuming a session (no prompt) has a known upstream limitation where `--dangerously-bypass-approvals-and-sandbox` isn't always honored — see [openai/codex#9144](https://github.com/openai/codex/issues/9144).
 
-Pass `-c`/`--cpus <n>` and `-m`/`--memory <size>` to override the container's resource limits — they can appear anywhere in the arguments, just like `--resume`. They default to 1 CPU and 512m of RAM when omitted, and aren't valid with `build`.
+Pass `-c`/`--cpu <n>` and `-m`/`--mem <size>` to override the container's resource limits — they can appear anywhere in the arguments, just like `--resume`. They default to 1 CPU and 512m of RAM when omitted, and aren't valid with `build`.
 
 ## Project dependencies
 

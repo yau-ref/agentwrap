@@ -5,7 +5,7 @@ DEFAULT_CPUS=1
 DEFAULT_MEMORY=512m
 
 usage() {
-    echo "Usage: $(basename "$0") [codex|claude] [-r|--resume <session-id>] [-c|--cpus <n>] [-m|--memory <size>] [prompt]" >&2
+    echo "Usage: $(basename "$0") [codex|claude] [-r|--resume <session-id>] [-c|--cpu <n>] [-m|--mem <size>] [prompt]" >&2
     echo "       $(basename "$0") build [codex|claude]" >&2
     exit 1
 }
@@ -41,14 +41,14 @@ while [ "$#" -gt 0 ]; do
             RESUME_ID="$2"
             shift 2
             ;;
-        -c|--cpus)
+        -c|--cpu)
             if [ "$#" -lt 2 ]; then
                 usage
             fi
             CPUS="$2"
             shift 2
             ;;
-        -m|--memory)
+        -m|--mem)
             if [ "$#" -lt 2 ]; then
                 usage
             fi
