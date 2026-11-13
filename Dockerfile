@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1.7
 
-FROM alpine:3.20 AS base
+FROM alpine:3.24 AS base
 
 ARG USER_ID=1000
 ARG GROUP_ID=1000
