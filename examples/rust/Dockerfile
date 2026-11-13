@@ -7,5 +7,7 @@ RUN apk add --no-cache \
         cargo \
         openssl-dev \
         pkgconfig \
-        rust
+        rust \
+        rust-clippy \
+        rustfmt
 USER agent
